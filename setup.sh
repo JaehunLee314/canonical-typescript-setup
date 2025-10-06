@@ -246,8 +246,9 @@ mkdir -p .vscode
 cat > .vscode/settings.json << 'EOF'
 {
   "editor.tabSize": 2,
+  "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll": true
+    "source.fixAll": "explicit"
   }
 }
 EOF
