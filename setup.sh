@@ -88,7 +88,20 @@ npm init -y
 echo "Project initialized successfully."
 
 # ==============================================================================
-# STEP 3: Install TypeScript and Core Dependencies
+# STEP 3: Configure Module System
+# ==============================================================================
+
+echo ""
+echo "Configuring ES modules..."
+
+# Add "type": "module" to package.json to enable ES modules
+# This allows using import/export syntax instead of require/module.exports
+gsed -i 's#"main": "index.js",#"type": "module",\n  "main": "index.js",#' package.json
+
+echo "ES module configuration complete."
+
+# ==============================================================================
+# STEP 4: Install TypeScript and Core Dependencies
 # ==============================================================================
 
 echo ""
@@ -107,7 +120,7 @@ echo "TypeScript dependencies installed."
 # npm install express @types/express
 
 # ==============================================================================
-# STEP 4: Configure TypeScript
+# STEP 5: Configure TypeScript
 # ==============================================================================
 
 echo ""
@@ -120,10 +133,21 @@ npx tsc --init --rootDir src --outDir dist
 # This provides optimal settings for Node.js 22 compatibility
 gsed -i '2i  "extends": "@tsconfig/node22/tsconfig.json",' tsconfig.json
 
+# Comment out generic environment settings
+# These are replaced by Node.js-specific settings below
+gsed -i 's#^[[:space:]]*"module": "nodenext",#    // "module": "nodenext",#' tsconfig.json
+gsed -i 's#^[[:space:]]*"target": "esnext",#    // "target": "esnext",#' tsconfig.json
+gsed -i 's#^[[:space:]]*"types": \[\],#    // "types": [],#' tsconfig.json
+
+# Uncomment Node.js-specific environment settings
+# This enables proper lib and types configuration for Node.js development
+gsed -i 's#// "lib": \["esnext"\],#"lib": ["esnext"],#' tsconfig.json
+gsed -i 's#// "types": \["node"\],#"types": ["node"],#' tsconfig.json
+
 echo "TypeScript configuration complete."
 
 # ==============================================================================
-# STEP 5: Configure Package Scripts
+# STEP 6: Configure Package Scripts
 # ==============================================================================
 
 echo ""
@@ -142,7 +166,7 @@ gsed -i 's#"scripts": {#"scripts": {\n    "dev": "tsx --watch src/index.ts",\n  
 echo "Package scripts configured."
 
 # ==============================================================================
-# STEP 6: Setup Prettier for Code Formatting
+# STEP 7: Setup Prettier for Code Formatting
 # ==============================================================================
 
 echo ""
@@ -157,7 +181,7 @@ echo '{}' > .prettierrc.json
 echo "Prettier configured."
 
 # ==============================================================================
-# STEP 7: Setup ESLint for Code Quality
+# STEP 8: Setup ESLint for Code Quality
 # ==============================================================================
 
 echo ""
@@ -189,7 +213,7 @@ npx eslint --init
 echo "ESLint base configuration complete."
 
 # ==============================================================================
-# STEP 8: Add ESLint Perfectionist Plugin
+# STEP 9: Add ESLint Perfectionist Plugin
 # ==============================================================================
 
 echo ""
@@ -200,15 +224,15 @@ echo "Adding ESLint Perfectionist plugin..."
 npm install --save-dev eslint-plugin-perfectionist
 
 # Add perfectionist plugin import to ESLint configuration
-gsed -i '5i import perfectionist from "eslint-plugin-perfectionist";' eslint.config.mjs
+gsed -i '5i import perfectionist from "eslint-plugin-perfectionist";' eslint.config.js
 
 # Add perfectionist recommended rules to ESLint configuration
-gsed -i '10i \  perfectionist.configs["recommended-natural"],' eslint.config.mjs
+gsed -i '10i \  perfectionist.configs["recommended-natural"],' eslint.config.js
 
 echo "ESLint Perfectionist plugin configured."
 
 # ==============================================================================
-# STEP 9: Setup VS Code Workspace Settings
+# STEP 10: Setup VS Code Workspace Settings
 # ==============================================================================
 
 echo ""
@@ -230,7 +254,7 @@ EOF
 echo "VS Code settings configured."
 
 # ==============================================================================
-# STEP 10: Create Project Structure
+# STEP 11: Create Project Structure
 # ==============================================================================
 
 echo ""
