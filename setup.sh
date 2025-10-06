@@ -245,6 +245,7 @@ mkdir -p .vscode
 # This automatically runs ESLint and Prettier fixes when saving files
 cat > .vscode/settings.json << 'EOF'
 {
+  "editor.tabSize": 2,
   "editor.codeActionsOnSave": {
     "source.fixAll": true
   }
