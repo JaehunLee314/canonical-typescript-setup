@@ -94,9 +94,8 @@ echo "Project initialized successfully."
 echo ""
 echo "Configuring ES modules..."
 
-# Add "type": "module" to package.json to enable ES modules
-# This allows using import/export syntax instead of require/module.exports
-gsed -i 's#"main": "index.js",#"type": "module",\n  "main": "index.js",#' package.json
+# Change module type to "module" for ES module support
+gsed -i 's#"type": "commonjs"#"type": "module"#' package.json
 
 echo "ES module configuration complete."
 
