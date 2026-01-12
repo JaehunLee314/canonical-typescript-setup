@@ -1,20 +1,20 @@
 #!/bin/bash
 
 # ==============================================================================
-# Canonical TypeScript Setup Script for Node.js v22.x on macOS
+# Canonical TypeScript Setup Script for Node.js v24.x on macOS
 # ==============================================================================
 #
 # This script automates the setup of a professional TypeScript development
-# environment with Node.js v22.x.
+# environment with Node.js v24.x.
 #
 # Prerequisites:
-# - Node.js v22.x must be installed
+# - Node.js v24.x must be installed
 # - npm must be available
 # - gnu-sed must be installed (install via: brew install gnu-sed)
 #
 # What this script does:
 # - Initializes a Node.js project with TypeScript support
-# - Configures TypeScript compiler with Node.js 22 settings
+# - Configures TypeScript compiler with Node.js 24 settings
 # - Sets up ESLint with TypeScript support and code organization plugins
 # - Configures Prettier for code formatting
 # - Creates development and production scripts
@@ -62,10 +62,10 @@ echo "Directory check complete."
 echo ""
 echo "Validating Node.js version..."
 
-if ! node -v | grep -q '^v22\.'; then
-  echo "ERROR: This script requires Node.js version 22.x"
+if ! node -v | grep -q '^v24\.'; then
+  echo "ERROR: This script requires Node.js version 24.x"
   echo "Current version: $(node -v)"
-  echo "Please install Node.js 22.x before running this script."
+  echo "Please install Node.js 24.x before running this script."
   exit 1
 fi
 
@@ -110,9 +110,9 @@ echo "Installing TypeScript and core dependencies..."
 # Install TypeScript compiler and runtime utilities
 # - typescript: The TypeScript compiler
 # - @types/node: Type definitions for Node.js APIs
-# - @tsconfig/node22: Recommended TypeScript configuration for Node.js 22
+# - @tsconfig/node24: Recommended TypeScript configuration for Node.js 24
 # - tsx: Fast TypeScript execution and watch mode for development
-npm install --save-dev typescript @types/node @tsconfig/node22 tsx
+npm install --save-dev typescript @types/node @tsconfig/node24 tsx
 
 echo "TypeScript dependencies installed."
 
@@ -129,9 +129,9 @@ echo "Configuring TypeScript compiler..."
 # Generate initial tsconfig.json with source and output directories
 npx tsc --init --rootDir src --outDir dist
 
-# Extend the Node.js 22 recommended configuration
-# This provides optimal settings for Node.js 22 compatibility
-gsed -i '2i  "extends": "@tsconfig/node22/tsconfig.json",' tsconfig.json
+# Extend the Node.js 24 recommended configuration
+# This provides optimal settings for Node.js 24 compatibility
+gsed -i '2i \  "extends": "@tsconfig/node24/tsconfig.json",' tsconfig.json
 
 # Comment out generic environment settings
 # These are replaced by Node.js-specific settings below
@@ -194,21 +194,18 @@ echo "Setting up ESLint..."
 # - typescript-eslint: TypeScript-specific linting rules
 npm install --save-dev eslint @eslint/js globals typescript-eslint
 
-# Initialize ESLint configuration
-echo ""
-echo "ESLint configuration wizard will start..."
-echo "Follow the prompts to configure ESLint for your project:"
-echo "  - Select: JavaScript"
-echo "  - Select: To check syntax and find problems"
-echo "  - Select: JavaScript modules (import/export)"
-echo "  - Select: None of these (framework)"
-echo "  - Select: Yes (TypeScript)"
-echo "  - Select: Node (runtime environment)"
-echo "  - Select: JavaScript (config file format)"
-echo "  - Select: Yes (install dependencies)"
-echo "  - Select: npm (use package manager)"
-echo ""
-npx eslint --init
+# Create ESLint configuration file
+cat > eslint.config.mjs << 'EOF'
+import js from "@eslint/js";
+import globals from "globals";
+import tseslint from "typescript-eslint";
+import { defineConfig } from "eslint/config";
+
+export default defineConfig([
+  { files: ["**/*.{js,mjs,cjs,ts,mts,cts}"], plugins: { js }, extends: ["js/recommended"], languageOptions: { globals: globals.node } },
+  tseslint.configs.recommended,
+]);
+EOF
 
 echo "ESLint base configuration complete."
 
@@ -224,10 +221,13 @@ echo "Adding ESLint Perfectionist plugin..."
 npm install --save-dev eslint-plugin-perfectionist
 
 # Add perfectionist plugin import to ESLint configuration
-gsed -i '5i import perfectionist from "eslint-plugin-perfectionist";' eslint.config.js
+gsed -i '5i import perfectionist from "eslint-plugin-perfectionist";' eslint.config.mjs
 
 # Add perfectionist recommended rules to ESLint configuration
-gsed -i '10i \  perfectionist.configs["recommended-natural"],' eslint.config.js
+gsed -i '10i \  perfectionist.configs["recommended-natural"],' eslint.config.mjs
+
+# Format ESLint configuration file using ESLint itself
+npx eslint --fix eslint.config.mjs
 
 echo "ESLint Perfectionist plugin configured."
 
